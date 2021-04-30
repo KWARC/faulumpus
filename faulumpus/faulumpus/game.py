@@ -13,9 +13,10 @@ class VisualizingAgent(object):
 
         self.lockA = threading.Lock()
         self.lockA.acquire()
-        # self.lockB = threading.Lock()
-        # self.lockA.acquire()
-        # self.lockB.acquire()
+        self.lockB = threading.Lock()
+        self.lockB.acquire()
+
+        self.gameover = False
 
         def onEnter(x,y):
             if self.world:
@@ -44,7 +45,14 @@ class VisualizingAgent(object):
         squareDetailsValuesLabel = tkinter.Label(self.window, textvariable=squareDetailsValues, width=10, bg='white', justify=tkinter.LEFT, anchor='w')
         squareDetailsValuesLabel.grid(column=2, row=0, sticky='SN')
         # self.window.bind('<Return>', lambda e : self.lockA.release() and self.lockB.acquire() and self.lockA.acquire())
-        self.window.bind('<Return>', lambda e : self.lockA.release())
+        self.window.bind('<Return>', lambda e : not self.gameover and self.lockA.release())
+        self.window.bind('<space>', lambda e : self.gameover and self.lockB.release())
+        self.showHidden = False
+        def sethidden(b):
+            self.showHidden = b
+            return True
+        self.window.bind('<KeyPress-Control_L>', lambda e : sethidden(True) and self.drawWorld())
+        self.window.bind('<KeyRelease-Control_L>', lambda e : sethidden(False) and self.drawWorld())
 
     def mainloop(self):
         self.window.mainloop()
@@ -55,13 +63,23 @@ class VisualizingAgent(object):
     def onGameEnd(self, score, message):
         print(score, message)
         self.agent.onGameEnd(score, message)
+        self.gameover = True
+        self.lockB.acquire()
+        self.gameover = False  # New one will start soon
 
     def getMove(self, world):
-        for square in world.squares():
-            square.draw(self.cmap[(square.x, square.y)], self.TILESIZE)
-        self.world = world
         self.lockA.acquire()
         return self.agent.getMove(world)
+
+    def drawWorld(self, world = None):
+        if world:
+            self.world = world
+        if not self.world:
+            return
+        for square in self.world.squares():
+            square.draw(self.cmap[(square.x, square.y)], self.TILESIZE, self.showHidden)
+        size = self.TILESIZE
+        self.cmap[(self.world.playerx, self.world.playery)].create_line(size*0.1,size*0.9,size*0.9,size*0.9,fill='#00aa00',width=size*0.15)
 
 
 
@@ -79,12 +97,15 @@ class Game(object):
     def evaluate(self, iterations):
         score = 0.0
         for i in range(iterations):
+            print(f'{i}/{iterations}')
             score += self.runGame()
         return score/iterations
 
 
     def _runGameCore(self):
         world = self.worldGenerator.makeWorld()
+        if isinstance(self.agent, VisualizingAgent):
+            self.agent.drawWorld(world)
         maxMoves = world.width * world.height
         discovered = []
         
@@ -92,9 +113,15 @@ class Game(object):
         knownworld.world[(0,0)].update(world.getSquare(0,0))
         for i in range(maxMoves):
             move = self.agent.getMove(knownworld)
+            if isinstance(self.agent, VisualizingAgent):
+                self.agent.drawWorld(world)
             if not move:
                 return (len(discovered) ** 2, 'Done')
             x,y = move
+            world.playerx = x
+            world.playery = y
+            knownworld.playerx = x
+            knownworld.playery = y
             # check move
             if not (0 <= x < world.width and 0 <= y < world.height):
                 return (0, f'Illegal coordinates in move: ({x}, {y})')
@@ -114,7 +141,8 @@ class Game(object):
 
 if __name__ == '__main__':
     generator = generate.WorldGenerator()
-    agent = RandomAgent(risk = 0.0)
+    # agent = RandomAgent(risk = 0.0)
+    agent = BasicAgent()
 
     import sys
     if sys.argv[-1] == 'v':
@@ -125,5 +153,5 @@ if __name__ == '__main__':
         agent.mainloop()
     else:
         game = Game(agent, generator)
-        print(game.evaluate(200))
+        print(game.evaluate(1000))
     

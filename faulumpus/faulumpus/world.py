@@ -22,19 +22,24 @@ class Square(object):
 
         self.neighbours = {}
 
-    def draw(self, canvas, size):
+    def draw(self, canvas, size, showundiscovered=False):
         canvas.delete('all')
-        if not self.discovered:
+        if not self.discovered and not showundiscovered:
             canvas.configure(bg = '#aaaaaa')
             canvas.create_text(size/2, size/2, anchor='c', text='?')
             return
         canvas.configure(bg = {GRASS: '#aaffaa', SWAMP: '#aaaaff', STONE: '#aaaaaa'}[self.type])
         if self.pit:
             canvas.create_oval(size*0.2, size*0.6, size*0.8, size*0.8, fill='#000000')
-        if self.issight:
-            canvas.create_oval(size*0.3, size*0.3, size*0.7, size*0.7, fill='#cccc00')
         if self.breeze:
             canvas.create_line(size*0.2, size*0.3, size*0.4, size*0.5, size*0.6, size*0.3, size*0.8, size*0.5, smooth=True, width=size*0.05, fill='#000000')
+        if self.issight:
+            canvas.create_oval(size*0.3, size*0.3, size*0.7, size*0.7, fill='#cccc00')
+
+        if not self.discovered and showundiscovered:
+            pass
+            # canvas.create_line(size*0.1,size*0.1,size*0.9,size*0.1,size*0.9,size*0.9,size*0.1,size*0.9,size*0.1,size*0.1,fill='#ffaaaa',width=size*0.05)
+
 
     def astuples(self):
         return [('Coordinates', (self.x, self.y)),

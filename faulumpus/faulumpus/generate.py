@@ -83,6 +83,22 @@ class WorldGenerator(object):
                 if random() < self.sensorfuzziness*0.1 or s.type==STONE and random() < self.sensorfuzziness*0.1:
                     s.breeze = True
 
+            # last tests to discard boring worlds
+            oldsize = 0
+            discoverable = {w.getSquare(0,0)}
+            while oldsize != len(discoverable):
+                oldsize = len(discoverable)
+                discoverable |= {s for s in w.squares() if any(n in discoverable and not n.breeze for n in s.neighbours.values())}
+
+            if len(discoverable) > self.width * self.height * 0.4 and random() < 0.8:
+                continue
+            if sum((1 if s.issight else 0) for s in discoverable) == 4:
+                continue
+            if sum((1 if s.issight else 0) for s in discoverable) == 3 and random() < 0.5:
+                continue
+
+
+
             return w
 
 
