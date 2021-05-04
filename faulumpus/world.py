@@ -8,17 +8,17 @@ SWAMP = 'swamp'
 STONE = 'stone'
 
 class Square(object):
-    def __init__(self, x, y, hidden=False):
+    def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.smell = False if not hidden else None
-        self.type = GRASS if not hidden else None
-        self.wumpus = False if not hidden else None
-        self.breeze = False if not hidden else None
-        self.issight = False if not hidden else None
+        self.smell = False
+        self.type = GRASS
+        self.wumpus = False
+        self.breeze = False
+        self.issight = False
         self.nameofsight = None
         self.discovered = False
-        self.pit = False if not hidden else None
+        self.pit = False
 
         self.neighbours = {}
 
@@ -42,12 +42,13 @@ class Square(object):
 
 
     def astuples(self):
-        return [('Coordinates', (self.x, self.y)),
+        return [('X', self.x),
+                ('Y', self.x),
                 ('Type', self.type),
                 ('IsSight', self.issight),
                 ('NameOfSight', self.nameofsight),
-                ('Smell', self.smell),
-                ('Wumpus', self.wumpus),
+                # ('Smell', self.smell),
+                # ('Wumpus', self.wumpus),
                 ('Breeze', self.breeze),
                 ('Pit', self.pit)]
 
@@ -67,10 +68,10 @@ class Square(object):
 
 
 class World(object):
-    def __init__(self, width, height, hidden=False):
+    def __init__(self, width, height):
         self.width = width
         self.height = height
-        self.world = {(x,y):Square(x,y, hidden) for x in range(width) for y in range(height)}
+        self.world = {(x,y):Square(x,y) for x in range(width) for y in range(height)}
 
         # link neighbours
         for x,y in self.world:
@@ -82,8 +83,20 @@ class World(object):
         self.playery = 0
         self.world[(self.playerx, self.playery)].discovered = True
 
+    def getScore(self):
+        return sum(s.issight and s.discovered for s in self.squares())**2
+
+    def canBeDiscovered(self, x, y):
+        if 0 <= x < self.width and 0 <= y < self.height:
+            s = self.getSquare(x,y)
+            return s.discovered or any(n.discovered for n in s.neighbours.values())
+        return False
+
     def squares(self):
         return self.world.values()
+
+    def __getitem__(self, arg):
+        return self.world[arg]
 
     def getSquare(self, x, y):
         return self.world[(x,y)]

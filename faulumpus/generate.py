@@ -11,7 +11,7 @@ class WorldGenerator(object):
         self.sensorfuzziness = sensorfuzziness
 
     def randomSquare(self, w):
-        return w.getSquare(randint(0,self.width-1), randint(0, self.height-1))
+        return w[randint(0,self.width-1), randint(0, self.height-1)]
 
     def getLegalSquare(self, w, isbanned, maxreps=50):
         for i in range(maxreps):
@@ -84,8 +84,10 @@ class WorldGenerator(object):
                     s.breeze = True
 
             # last tests to discard boring worlds
+            if w[0,0].pit:
+                continue
             oldsize = 0
-            discoverable = {w.getSquare(0,0)}
+            discoverable = {w[0,0]}
             while oldsize != len(discoverable):
                 oldsize = len(discoverable)
                 discoverable |= {s for s in w.squares() if any(n in discoverable and not n.breeze for n in s.neighbours.values())}
@@ -97,8 +99,6 @@ class WorldGenerator(object):
             if sum((1 if s.issight else 0) for s in discoverable) == 3 and random() < 0.5:
                 continue
 
-
-
             return w
 
 
@@ -107,7 +107,7 @@ if __name__ == '__main__':
     TILESIZE = 30
     import tkinter
     def onEnter(x,y):
-        squareDetailsValues.set('\n'.join(str(e[1]) for e in world.getSquare(x,y).astuples()))
+        squareDetailsValues.set('\n'.join(str(e[1]) for e in world[x,y].astuples()))
     def onLeave(x,y):
         squareDetailsValues.set('')
 
