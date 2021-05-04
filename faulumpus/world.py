@@ -43,7 +43,7 @@ class Square(object):
 
     def astuples(self):
         return [('X', self.x),
-                ('Y', self.x),
+                ('Y', self.y),
                 ('Type', self.type),
                 ('IsSight', self.issight),
                 ('NameOfSight', self.nameofsight),

@@ -76,10 +76,30 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             AGENT_STATS[name] = {
                         'key' : key,
                         'results' : [],
-                        'maxscore' : 0.0,
+                        'maxscore' : -1.0,  # not evaluated
                     }
 
         return d
+
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        content = [f'<html>\n<body>\n<h1>FAULumpus</h1>\n<h2>Evaluated Agents (requires {GAMES_FOR_EVAL} games)</h2>\n']
+        content.append(f'<p>The evaluation score of an agent is the maximal average score of {GAMES_FOR_EVAL} consecutive games. Therefore, the evaluation will be updated when your agent becomes stronger and you do not have to get a new name for your agent.</p>')
+        content.append('<ol>')
+        for agent in sorted((n for n in AGENT_STATS if AGENT_STATS[n]['maxscore'] > -0.5), key=lambda n : AGENT_STATS[n]['maxscore']):
+            content.append(f'<li>{agent}: {AGENT_STATS[agent]["maxscore"]}</li>')
+        content.append('</ol>')
+        content.append(f'<h2>Agents with less than {GAMES_FOR_EVAL} Games</h2>\n<ul>')
+        for agent in AGENT_STATS:
+            s = AGENT_STATS[agent]
+            if s['maxscore'] < -0.5:
+                score = 0 if not s['results'] else sum(s['results'])/len(s['results'])
+                content.append(f'<li>{agent}: {score} (average from {len(s["results"])} games)')
+        content.append('</ul>\n</body>\n</html>')
+
+        self.wfile.write('\n'.join(content).encode('UTF-8'))
+
 
     def do_PUT(self):
         d = self.contentlines()
@@ -136,8 +156,9 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             gameOver(name, GAMES[name].getScore())
         GAMES[name] = w
         message = squareSerialize(w[0,0])
-        self.send_response(200, message)
+        self.send_response(200)
         self.end_headers()
+        self.wfile.write(message.encode('UTF-8'))
 
 
 if __name__ == '__main__':
