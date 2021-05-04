@@ -9,6 +9,8 @@ class WorldGenerator(object):
         self.sights = sights
         self.pitfreq = pitfreq
         self.sensorfuzziness = sensorfuzziness
+        self.stats_created = 0
+        self.stats_attempted = 0
 
     def randomSquare(self, w):
         return w[randint(0,self.width-1), randint(0, self.height-1)]
@@ -21,7 +23,9 @@ class WorldGenerator(object):
         return None
 
     def makeWorld(self):
+        self.stats_created += 1
         while True:
+            self.stats_attempted += 1
             w = World(self.width, self.height)
 
             shift = random()*2-1

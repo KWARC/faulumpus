@@ -75,7 +75,7 @@ class FAULumpusConnection(object):
 if __name__ == '__main__':
     from agent import *
     import sys
-    connection = FAULumpusConnection('John2', 'asdf2')
+    connection = FAULumpusConnection('SmartAgent2-3', 'asdf2')
     agentclassname = sys.argv[-1]
     g = globals()
     if agentclassname not in g:
