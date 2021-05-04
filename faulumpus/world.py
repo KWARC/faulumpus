@@ -25,7 +25,7 @@ class Square(object):
     def draw(self, canvas, size, showundiscovered=False):
         canvas.delete('all')
         if not self.discovered and not showundiscovered:
-            canvas.configure(bg = '#aaaaaa')
+            canvas.configure(bg = '#dddddd')
             canvas.create_text(size/2, size/2, anchor='c', text='?')
             return
         canvas.configure(bg = {GRASS: '#aaffaa', SWAMP: '#aaaaff', STONE: '#aaaaaa'}[self.type])

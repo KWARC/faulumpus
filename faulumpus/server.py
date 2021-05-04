@@ -1,22 +1,54 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import re
+import time
+import pickle
+import os
+import gzip
 
 GAMES_FOR_EVAL = 1000
-
 SECRET_PATH = 'cfa2189a2c00a70b81e59319d7442303'   # ''.join([hex(random.randint(0,255))[2:].rjust(2,'0') for i in range(16)])
-
-# 'name' : {'key': ..., 'results': [...], 'maxscore': ... }
-AGENT_STATS = {
-
-}
-
-
-GAMES = {
-
-}
+AGENT_STATS = { }                                  # 'name' : {'key': ..., 'results': [...], 'maxscore': ... }
+GAMES = { }                                        # 'name' : World
 
 from generate import WorldGenerator
 GENERATOR = WorldGenerator()
+
+VISUALIZER = None
+
+def save_agentstats():
+    timestamp = str(int(time.time())).rjust(12, '0')
+    with gzip.open(os.path.join('saved', f'{timestamp}-saved.dmp'), 'wb') as fp:
+        pickle.dump(AGENT_STATS, fp)
+    save_agentstats.lastsave = time.time()
+    
+    # remove unecessary files:
+    files = [f for f in os.listdir('saved') if filenameregex.match(f)]
+    files.sort()
+    last = 0
+    for f in files[:-1]:
+        this = int(f[:12])
+        if this-last < 60*60:
+            os.remove(os.path.join('saved', f))
+        else:
+            last = this
+
+def maybe_save_agentstats():
+    if time.time() - save_agentstats.lastsave > 60*5:
+        save_agentstats()
+
+# try loading AGENT_STATS
+if not os.path.isdir('saved'):
+    os.mkdir('saved')
+filenameregex = re.compile('^' + '[0-9]'*12 + r'-saved\.dmp$')
+files = [f for f in os.listdir('saved') if filenameregex.match(f)]
+files.sort()
+if files:
+    with gzip.open(os.path.join('saved', files[-1]), 'rb') as fp:
+        AGENT_STATS = pickle.load(fp)
+    save_agentstats.lastsave = int(files[-1][:12])
+else:
+    save_agentstats.lastsave = int(time.time())
+
 
 name_regex = re.compile(r'^[a-zA-Z0-9 -_!.()]+$')
 key_regex = re.compile(r'^[a-zA-Z0-9]+$')
@@ -116,6 +148,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         m = d['moves']
 
         messages = []
+        discovered = []
 
         for move in m.split(';'):
             move = move.strip()
@@ -131,6 +164,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                 move = move.split(',')
                 x = int(move[0].strip())
                 y = int(move[1].strip())
+                discovered.append((x,y))
                 if not w.canBeDiscovered(x, y):
                     messages.append(f'GAME OVER\nReason: IllegalMove\nScore: 0')
                     gameOver(name, 0)
@@ -142,9 +176,12 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                     gameOver(name, 0)
                     break
 
+        if VISUALIZER:
+            VISUALIZER.drawWorld(w, discovered)
         self.send_response(200)
         self.end_headers()
         self.wfile.write('\n'.join(messages).encode('UTF-8'))
+        maybe_save_agentstats()
 
     def do_POST(self):
         d = self.contentlines()
@@ -156,13 +193,28 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             gameOver(name, GAMES[name].getScore())
         GAMES[name] = w
         message = squareSerialize(w[0,0])
+
+        if VISUALIZER:
+            VISUALIZER.drawWorld(w, [(0,0)])
         self.send_response(200)
         self.end_headers()
         self.wfile.write(message.encode('UTF-8'))
+        maybe_save_agentstats()
+
+
 
 
 if __name__ == '__main__':
+    import sys
+    if sys.argv[-1] == '-visualize':
+        import visualizer
+        VISUALIZER = visualizer.Visualizer(GENERATOR.width, GENERATOR.height)
+        import threading
+        threading.Thread(target=VISUALIZER.run).start()
     httpd = HTTPServer(('localhost', 8000), SimpleHTTPRequestHandler)
-    httpd.serve_forever()
+    try:
+        httpd.serve_forever()
+    finally:
+        save_agentstats()
 
 
