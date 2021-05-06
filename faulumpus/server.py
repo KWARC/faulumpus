@@ -205,13 +205,17 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 
 
 if __name__ == '__main__':
+    import os
+    hostname = os.environ.get('HOST', 'localhost')
+    port = int(os.environ.get('PORT', '8000'))
+
     import sys
     if sys.argv[-1] == '-visualize':
         import visualizer
         VISUALIZER = visualizer.Visualizer(GENERATOR.width, GENERATOR.height)
         import threading
         threading.Thread(target=VISUALIZER.run).start()
-    httpd = HTTPServer(('localhost', 8000), SimpleHTTPRequestHandler)
+    httpd = HTTPServer((hostname, port), SimpleHTTPRequestHandler)
     try:
         httpd.serve_forever()
     finally:
