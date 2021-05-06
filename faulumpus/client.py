@@ -1,22 +1,23 @@
 import requests
 from server import SECRET_PATH
-import time
-
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
+from agent import *
+
 class FAULumpusConnection(object):
-    def __init__(self, name, key):
+    def __init__(self, name, key, address):
         self.session = requests.session()
         self.name = name
         self.key = key
+        self.address = address
         retries = Retry(total=5, backoff_factor=1, status_forcelist=[502, 503, 504])
         self.session.mount('http://', HTTPAdapter(max_retries=retries))
         self.session.mount('https://', HTTPAdapter(max_retries=retries))
 
     def makeMoves(self, moves):
         # TODO: Verify that moves is non-empty and that moves are well-formed
-        response = self.session.put(f'http://localhost:8000/{SECRET_PATH}',
+        response = self.session.put(f'{self.address}/{SECRET_PATH}',
                 data = f'name: {self.name}\nkey: {self.key}\nmoves: {"; ".join(moves)}')
         response.raise_for_status()
 
@@ -44,7 +45,7 @@ class FAULumpusConnection(object):
                 else:
                     if key in ['X', 'Y']:
                         val = int(val)
-                    elif key in ['IsSight', 'Pit', 'Breeze'] and val in ['True', 'False']:
+                    elif key in ['IsSight', 'Pit', 'Breeze', 'Smell', 'Wumpus'] and val in ['True', 'False']:
                         val = True if val == 'True' else False
                     result['squares'][-1][key] = val
             else:
@@ -53,7 +54,7 @@ class FAULumpusConnection(object):
 
 
     def newGame(self):
-        response = self.session.post(f'http://localhost:8000/{SECRET_PATH}',
+        response = self.session.post(f'{self.address}/{SECRET_PATH}',
                 data = f'name: {self.name}\nkey: {self.key}')
         response.raise_for_status()
         square = {}
@@ -67,39 +68,43 @@ class FAULumpusConnection(object):
                 val = line[sep+1:].strip()
                 if key in ['X', 'Y']:
                     val = int(val)
-                elif key in ['IsSight', 'Pit', 'Breeze'] and val in ['True', 'False']:
+                elif key in ['IsSight', 'Pit', 'Breeze', 'Smell', 'Wumpus'] and val in ['True', 'False']:
                     val = True if val == 'True' else False
                 square[key] = val
         return square
 
 if __name__ == '__main__':
-    from agent import *
-    import sys
-    connection = FAULumpusConnection('SmartAgent2-3', 'asdf2')
-    agentclassname = sys.argv[-1]
-    g = globals()
-    if agentclassname not in g:
-        print(f'class {agentclassname} not found.')
-        sys.exit(1)
-    agent = g[agentclassname]()
-    
+    import sys, os
+    args = sys.argv[1:]
+    STEP = False
+    LOCAL = True
+    for arg in args:
+        if arg == '-step':
+            STEP = True
+        elif arg == '-compete':
+            LOCAL = False
+        else:
+            print(f'Unknown option {arg}')
+
+    connection = FAULumpusConnection(AGENT_NAME, AGENT_PASSWORD, f'http://localhost:{os.environ.get("PORT", "8080")}' if LOCAL else 'https://faulumpus.kwarc.info')
+
     gamecounter = 0
     scores = []
     while True:
+        if STEP: input('Press <Return> to continue...')
         firstSquare = connection.newGame()
-        agent.onGameStart(firstSquare)
+        AGENT.onGameStart(firstSquare)
         gameOver = False
         while not gameOver:
-            moves = agent.getMoves()
+            if STEP: input('Press <Return> to continue...')
+            moves = AGENT.getMoves()
             result = connection.makeMoves(moves)
-            agent.onDiscoveredSquares(result['squares'])
+            AGENT.onDiscoveredSquares(result['squares'])
             if result['gameover']:
                 gameOver = True
                 scores.append(result['score'])
-                agent.onGameEnd(result['score'], result['reason-of-gameover'])
+                AGENT.onGameEnd(result['score'], result['reason-of-gameover'])
                 print(f'Result of game {gamecounter}: {result["score"]} ({result["reason-of-gameover"]})')
                 print(f'Average score: {sum(scores)/len(scores)}')
                 gamecounter += 1
-
-
 

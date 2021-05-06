@@ -4,6 +4,7 @@ import time
 import pickle
 import os
 import gzip
+import hashlib
 
 GAMES_FOR_EVAL = 1000
 SECRET_PATH = 'cfa2189a2c00a70b81e59319d7442303'   # ''.join([hex(random.randint(0,255))[2:].rjust(2,'0') for i in range(16)])
@@ -92,7 +93,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         if not 'key' in d:
             self.send_error(400, 'Malformed request: no key specified')
             return None
-        if not name_regex.match(d['name']):
+        if not name_regex.match(d['name']) or len(d['name']) > 30:
             self.send_error(400, 'Malformed request: illegal name')
             return None
         if not key_regex.match(d['key']):
@@ -119,15 +120,17 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         content = [f'<html>\n<body>\n<h1>FAULumpus</h1>\n<h2>Evaluated Agents (requires {GAMES_FOR_EVAL} games)</h2>\n']
         content.append(f'<p>The evaluation score of an agent is the maximal average score of {GAMES_FOR_EVAL} consecutive games. Therefore, the evaluation will be updated when your agent becomes stronger and you do not have to get a new name for your agent.</p>')
         content.append('<ol>')
-        for agent in sorted((n for n in AGENT_STATS if AGENT_STATS[n]['maxscore'] > -0.5), key=lambda n : AGENT_STATS[n]['maxscore']):
-            content.append(f'<li>{agent}: {AGENT_STATS[agent]["maxscore"]}</li>')
+        for agent in sorted((n for n in AGENT_STATS if AGENT_STATS[n]['maxscore'] > -0.5), key=lambda n : -AGENT_STATS[n]['maxscore']):
+            hk = hashlib.sha256(s['key'].encode('UTF-8')).hexdigest()
+            content.append(f'<li>{agent}<!-- {hk} -->: {AGENT_STATS[agent]["maxscore"]:.4}</li>')
         content.append('</ol>')
         content.append(f'<h2>Agents with less than {GAMES_FOR_EVAL} Games</h2>\n<ul>')
         for agent in AGENT_STATS:
             s = AGENT_STATS[agent]
             if s['maxscore'] < -0.5:
                 score = 0 if not s['results'] else sum(s['results'])/len(s['results'])
-                content.append(f'<li>{agent}: {score} (average from {len(s["results"])} games)')
+                hk = hashlib.sha256(s['key'].encode('UTF-8')).hexdigest()
+                content.append(f'<li>{agent}<!-- {hk} -->: {score:.4} (average from {len(s["results"])} games)')
         content.append('</ul>\n</body>\n</html>')
 
         self.wfile.write('\n'.join(content).encode('UTF-8'))
@@ -175,6 +178,10 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                     messages.append(f'GAME OVER\nReason: Pit\nScore: 0')
                     gameOver(name, 0)
                     break
+                if w[x,y].wumpus:
+                    messages.append(f'GAME OVER\nReason: Wumpus\nScore: 0')
+                    gameOver(name, 0)
+                    break
 
         if VISUALIZER:
             VISUALIZER.drawWorld(w, discovered)
@@ -220,5 +227,4 @@ if __name__ == '__main__':
         httpd.serve_forever()
     finally:
         save_agentstats()
-
 

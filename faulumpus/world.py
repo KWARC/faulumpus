@@ -33,6 +33,13 @@ class Square(object):
             canvas.create_oval(size*0.2, size*0.6, size*0.8, size*0.8, fill='#000000')
         if self.breeze:
             canvas.create_line(size*0.2, size*0.3, size*0.4, size*0.5, size*0.6, size*0.3, size*0.8, size*0.5, smooth=True, width=size*0.05, fill='#000000')
+        if self.smell:
+            canvas.create_text(size/2, size/2, anchor='c', text='S', fill='#990000')
+            # canvas.create_line(size*0.2, size*0.3, size*0.4, size*0.5, size*0.6, size*0.3, size*0.8, size*0.5, smooth=True, width=size*0.05, fill='#000000')
+        if self.wumpus:
+            canvas.create_oval(size*0.2, size*0.2, size*0.8, size*0.8, fill='#990000')
+            canvas.create_oval(size*0.3, size*0.4, size*0.4, size*0.5, fill='#000000')
+            canvas.create_oval(size*0.6, size*0.4, size*0.7, size*0.5, fill='#000000')
         if self.issight:
             canvas.create_oval(size*0.3, size*0.3, size*0.7, size*0.7, fill='#cccc00')
 
@@ -47,8 +54,8 @@ class Square(object):
                 ('Type', self.type),
                 ('IsSight', self.issight),
                 ('NameOfSight', self.nameofsight),
-                # ('Smell', self.smell),
-                # ('Wumpus', self.wumpus),
+                ('Smell', self.smell),
+                ('Wumpus', self.wumpus),
                 ('Breeze', self.breeze),
                 ('Pit', self.pit)]
 

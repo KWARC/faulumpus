@@ -77,7 +77,7 @@ class WorldGenerator(object):
                             s.x+s.y==0,
                         maxreps=3)
                 if not s: continue
-                if s.x + s.y < random() * 5: continue  # keep starting corner free
+                if s.x + s.y < random() * 5 + 1: continue  # keep starting corner free
                 s.pit = True
 
             for s in w.squares():
@@ -102,6 +102,13 @@ class WorldGenerator(object):
                 continue
             if sum((1 if s.issight else 0) for s in discoverable) == 3 and random() < 0.5:
                 continue
+            
+            # place wumpus
+            s = self.getLegalSquare(w, lambda s : s.issight or s.x + s.y < 5 or (s.pit and random() < 0.5))
+            s.wumpus = True
+            s.smell = True
+            for n in s.neighbours.values():
+                n.smell = True
 
             return w
 
@@ -148,8 +155,5 @@ if __name__ == '__main__':
     generateWorld(None)
     window.bind('<Return>', generateWorld)
 
-
-
     window.mainloop()
-
 
