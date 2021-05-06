@@ -86,7 +86,7 @@ if __name__ == '__main__':
         else:
             print(f'Unknown option {arg}')
 
-    connection = FAULumpusConnection(AGENT_NAME, AGENT_PASSWORD, f'http://localhost:{os.environ.get("PORT", "8080")}' if LOCAL else 'https://faulumpus.kwarc.info')
+    connection = FAULumpusConnection(AGENT_NAME, AGENT_PASSWORD, f'http://localhost:{os.environ.get("PORT", "8000")}' if LOCAL else 'https://faulumpus.kwarc.info')
 
     gamecounter = 0
     scores = []

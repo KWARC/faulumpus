@@ -96,7 +96,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         if not name_regex.match(d['name']) or len(d['name']) > 30:
             self.send_error(400, 'Malformed request: illegal name')
             return None
-        if not key_regex.match(d['key']):
+        if not key_regex.match(d['key']) or not (10 < len(d['key']) < 500):
             self.send_error(400, 'Malformed request: illegal key')
             return None
         name = d['name']
@@ -130,7 +130,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             if s['maxscore'] < -0.5:
                 score = 0 if not s['results'] else sum(s['results'])/len(s['results'])
                 hk = hashlib.sha256(s['key'].encode('UTF-8')).hexdigest()
-                content.append(f'<li>{agent}<!-- {hk} -->: {score:.4} (average from {len(s["results"])} games)')
+                content.append(f'<li>{agent}<!-- {hk} -->: {score:.4} (average from {len(s["results"])} games)</li>')
         content.append('</ul>\n</body>\n</html>')
 
         self.wfile.write('\n'.join(content).encode('UTF-8'))
