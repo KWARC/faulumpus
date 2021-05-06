@@ -121,6 +121,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         content.append(f'<p>The evaluation score of an agent is the maximal average score of {GAMES_FOR_EVAL} consecutive games. Therefore, the evaluation will be updated when your agent becomes stronger and you do not have to get a new name for your agent.</p>')
         content.append('<ol>')
         for agent in sorted((n for n in AGENT_STATS if AGENT_STATS[n]['maxscore'] > -0.5), key=lambda n : -AGENT_STATS[n]['maxscore']):
+            s = AGENT_STATS[agent]
             hk = hashlib.sha256(s['key'].encode('UTF-8')).hexdigest()
             content.append(f'<li>{agent}<!-- {hk} -->: {AGENT_STATS[agent]["maxscore"]:.4}</li>')
         content.append('</ol>')
@@ -128,7 +129,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         for agent in AGENT_STATS:
             s = AGENT_STATS[agent]
             if s['maxscore'] < -0.5:
-                score = 0 if not s['results'] else sum(s['results'])/len(s['results'])
+                score = 0.0 if not s['results'] else sum(s['results'])/len(s['results'])
                 hk = hashlib.sha256(s['key'].encode('UTF-8')).hexdigest()
                 content.append(f'<li>{agent}<!-- {hk} -->: {score:.4} (average from {len(s["results"])} games)</li>')
         content.append('</ul>\n</body>\n</html>')
