@@ -11,9 +11,9 @@ pip3 install requests
 
 
 ### Creating an agent
-You can create a new agent by modifying the `agent.py` script.
-The script contains the relevant instructions.
-Don't forget to set appropriate values for `AGENT_NAME`, `AGENT_PASSWORD` and `AGENT` at the end of the script.
+You can create a new agent by modifying `agent.py`.
+The file contains the relevant instructions.
+Don't forget to set appropriate values for `AGENT_NAME`, `AGENT_PASSWORD` and `AGENT` at the end of the file!
 
 ### Testing your agent locally
 You should be able to test your agent locally.
