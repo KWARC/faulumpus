@@ -40,7 +40,7 @@ If you press the left control key in the server's GUI, you can see the undiscove
 
 
 ### Competing on `faulumpus.kwarc.info`
-To compete with your agent on `faulumpus.kwarc.info`, you have to pass the `-step` option to the client:
+To compete with your agent on `faulumpus.kwarc.info`, you have to pass the `-compete` option to the client:
 ```
 python3 client.py -compete
 ```
