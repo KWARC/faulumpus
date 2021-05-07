@@ -4,7 +4,7 @@ RIGHT = 'right'
 DOWN  = 'down'
 
 GRASS = 'grass'
-SWAMP = 'swamp'
+WATER = 'water'
 STONE = 'stone'
 
 class Square(object):
@@ -28,7 +28,7 @@ class Square(object):
             canvas.configure(bg = '#dddddd')
             canvas.create_text(size/2, size/2, anchor='c', text='?')
             return
-        canvas.configure(bg = {GRASS: '#aaffaa', SWAMP: '#aaaaff', STONE: '#aaaaaa'}[self.type])
+        canvas.configure(bg = {GRASS: '#aaffaa', WATER: '#aaaaff', STONE: '#aaaaaa'}[self.type])
         if self.pit:
             canvas.create_oval(size*0.2, size*0.6, size*0.8, size*0.8, fill='#000000')
         if self.breeze:

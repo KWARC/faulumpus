@@ -34,28 +34,28 @@ class WorldGenerator(object):
                 if self.width * 0.3 < s.x < self.width*0.7:
                     choices += [GRASS, GRASS]
                     if self.width * (0.35+random()/10) < s.x + shift < self.width*(0.55+random()/10):
-                        choices += [SWAMP, SWAMP, SWAMP, SWAMP]
+                        choices += [WATER, WATER, WATER, WATER]
                 else:
                     choices += [STONE, STONE]
                 s.type = choice(choices)
-                # s.type = choice([GRASS, STONE] + ([GRASS,GRASS,SWAMP,SWAMP,SWAMP] if self.width*0.3 < s.x < self.width*0.7 else [STONE]))
+                # s.type = choice([GRASS, STONE] + ([GRASS,GRASS,WATER,WATER,WATER] if self.width*0.3 < s.x < self.width*0.7 else [STONE]))
 
             for i in range(int(self.width*self.height*self.smoothness)):
                 s = self.randomSquare(w)
                 d = choice([LEFT, RIGHT, UP, DOWN, UP, DOWN, UP, DOWN])
                 if d in s.neighbours:
-                    if s.neighbours[d].type == SWAMP:
-                        s.type = SWAMP
+                    if s.neighbours[d].type == WATER:
+                        s.type = WATER
                     else:
                         s.neighbours[d].type = s.type
 
             for s in w.squares():
-                if s.type == SWAMP and choice(list(s.neighbours.values())).type != SWAMP:
+                if s.type == WATER and choice(list(s.neighbours.values())).type != WATER:
                     s.type = GRASS
 
             worldIsOkay = True
             for sight in self.sights:
-                s = self.getLegalSquare(w, lambda s : s.type == SWAMP or s.issight)
+                s = self.getLegalSquare(w, lambda s : s.type == WATER or s.issight)
                 if not s:
                     worldIsOkay = False
                     break
@@ -68,9 +68,9 @@ class WorldGenerator(object):
             for i in range(int(self.width * self.height * self.pitfreq * (random()*0.2+0.9))):
                 s = self.getLegalSquare(w, lambda s :
                             s.issight or
-                            s.type == SWAMP or
-                            choice(list(s.neighbours.values())).type == SWAMP or
-                            choice(list(s.neighbours.values())).type == SWAMP or
+                            s.type == WATER or
+                            choice(list(s.neighbours.values())).type == WATER or
+                            choice(list(s.neighbours.values())).type == WATER or
                             choice(list(s.neighbours.values())).pit or
                             choice(list(s.neighbours.values())).pit or
                             choice(list(s.neighbours.values())).pit or
