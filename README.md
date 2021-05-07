@@ -17,9 +17,9 @@ Furthermore, four squares contain an Erlangen sight.
 ![Screenshot FAULumpus World](img/screenshot.png)
 
 #### Possible moves
-There are two type of move: exploration and finishing.
+There are two types of moves: exploration and finishing.
 You can explore any square adjacent to one that has already been explored (in the screenshot below,
-the squares can be explored). The player location is irrelevant, i.e. you could first explore a square
+the red squares can be explored). The player location is irrelevant, i.e. you could first explore a square
 on the bottom and next a square on the top.
 If your agent decides that any further move would do more harm than good,
 it can decide to finish the game to collect the points and avoid death (see next section).
@@ -32,14 +32,15 @@ If your agent finds *n* sights, it gets a score of *n²*.
 However, your agent will die if it steps on a square with a pit or the wumpus.
 In that case, the agent will get 0 points – no matter how many sights it had found.
 Therefore, your agent should finish the game at some point.
+Note that illegal moves are also lethal.
 
 Your agent will be evaluated based on the maximum average score of 1000
 consecutive games played on the server.
 
 To illustrate the evaluation, let's pretend for a moment that your agent is
-evaluated based on the maximum overage score of 3 consecutive games rather than 1000.
+evaluated based on the maximum average score of 3 consecutive games rather than 1000.
 Let us say your agent gets the following scores in consecutive games: 4, 1, 1, 4, 16, 4, 1, 16.
-Then its evaluation would be (4+16+4)/3, as that is the maximum of three consecutive games.
+Then its evaluation would be (4+16+4)/3 = 8, as that is the maximum of three consecutive games.
 
 ## Requirements
 You need to have a recent Python version.
