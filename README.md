@@ -21,6 +21,7 @@ There are two types of moves: exploration and finishing.
 You can explore any square adjacent to one that has already been explored (in the screenshot below,
 the red squares can be explored). The player location is irrelevant, i.e. you could first explore a square
 on the bottom and next a square on the top.
+Initially, only the (0,0) square is explored (bottom left corner).
 If your agent decides that any further move would do more harm than good,
 it can decide to finish the game to collect the points and avoid death (see next section).
 
