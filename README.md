@@ -1,7 +1,7 @@
 # FAULumpus
 
 
-### Rules
+## Rules
 Your agent acts in the FAULumpus world – a variant of the Wumpus world with an Erlangen theme.
 
 #### The world
@@ -41,7 +41,7 @@ evaluated based on the maximum overage score of 3 consecutive games rather than 
 Let us say your agent gets the following scores in consecutive games: 4, 1, 1, 4, 16, 4, 1, 16.
 Then its evaluation would be (4+16+4)/3, as that is the maximum of three consecutive games.
 
-### Requirements
+## Requirements
 You need to have a recent Python version.
 Furthermore, you will need the `requests` library.
 You should be able to install it with `pip`:
@@ -49,13 +49,12 @@ You should be able to install it with `pip`:
 pip3 install requests
 ```
 
-
-### Creating an agent
+## Creating an agent
 You can create a new agent by modifying `agent.py`.
 The file contains the relevant instructions.
 Don't forget to set appropriate values for `AGENT_NAME`, `AGENT_PASSWORD` and `AGENT` at the end of the file!
 
-### Testing your agent locally
+## Testing your agent locally
 You should be able to test your agent locally.
 You can start a server on localhost using
 ```
@@ -79,14 +78,14 @@ python3 client.py -step
 If you press the left control key in the server's GUI, you can see the undiscovered squares.
 
 
-### Competing on `faulumpus.kwarc.info`
+## Competing on `faulumpus.kwarc.info`
 To compete with your agent on `faulumpus.kwarc.info`, you have to pass the `-compete` option to the client:
 ```
 python3 client.py -compete
 ```
 
 
-### The world generator
+## The world generator
 If you want to get a feeling for what the FAULumpus world looks like,
 you can run
 ```
