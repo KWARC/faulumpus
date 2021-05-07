@@ -1,5 +1,6 @@
 # Your task is to implement a new agent.
 # `TimidAgent` (see below) is a very simple example agent.
+# Note that the agent is responsible for keeping track of what has been explored.
 class Agent(object):
     def onGameStart(self, firstSquare):
         '''
@@ -50,9 +51,8 @@ class Agent(object):
 class TimidAgent(Agent):
     ''' A simple example agent that walks to the right until it senses any danger '''
     def onGameStart(self, firstSquare):
-        # self.x and self.y are used to store the current position
-        self.x = firstSquare['X']
-        self.y = firstSquare['Y']
+        # keep track of all explored X coordinates (we only explore the Y=0 line)
+        self.explored = [firstSquare['X']]
         self.keepWalking = True
         if firstSquare['Smell'] or firstSquare['Breeze']:
             # don't keep walking if there might be any danger
@@ -63,19 +63,19 @@ class TimidAgent(Agent):
 
     def onDiscoveredSquares(self, squares):
         for square in squares:
-            # update current position
-            self.x = square['X']
-            self.y = square['Y']
+            # update explored positions
+            self.explored.append(square['X'])
             # don't keep walking if there might be any danger
             if square['Smell'] or square['Breeze']:
                 self.keepWalking = False
 
     def getMoves(self):
-        if self.x == 11:  # end of world
+        x = max(self.explored)    # X coordinate of right-most explored square
+        if x == 11:               # end of world
             return ['FINISH']
         if not self.keepWalking:
             return ['FINISH']
-        return [str(self.x + 1) + ',' + str(self.y)]
+        return [str(x + 1) + ',0']   # explore square to the right
 
 
 
