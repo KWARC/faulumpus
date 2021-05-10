@@ -94,4 +94,4 @@ you can run
 python3 generate.py
 ```
 It displays randomly generated worlds.
-Press `Return` to show generate a new world.
+Press `Return` to generate a new world.
