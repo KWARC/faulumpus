@@ -51,7 +51,7 @@ else:
     save_agentstats.lastsave = int(time.time())
 
 
-name_regex = re.compile(r'^[a-zA-Z0-9 -_!.()]+$')
+name_regex = re.compile(r'^[a-zA-Z0-9 _!()\.-]+$')
 key_regex = re.compile(r'^[a-zA-Z0-9]+$')
 move_regex = re.compile(r'^\d+,\s*\d+$')
 
