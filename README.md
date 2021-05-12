@@ -1,5 +1,6 @@
 # FAULumpus
 
+![Example Exploration in FAULumpus World](img/exploration.gif)
 
 ## Rules
 Your agent acts in the FAULumpus world – a variant of the Wumpus world with an Erlangen theme.
