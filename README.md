@@ -81,7 +81,7 @@ If you press the left control key in the server's GUI, you can see the undiscove
 
 
 ## Competing on `faulumpus.kwarc.info`
-To compete with your agent on `faulumpus.kwarc.info`, you have to pass the `-compete` option to the client:
+To compete with your agent on [faulumpus.kwarc.info](https://faulumpus.kwarc.info/), you have to pass the `-compete` option to the client:
 ```
 python3 client.py -compete
 ```
@@ -95,3 +95,9 @@ python3 generate.py
 ```
 It displays randomly generated worlds.
 Press `Return` to generate a new world.
+
+
+## Issues and Pull Requests
+If you face any problems, please make an issue.
+You are also welcome to make pull requests for improvements.
+Note that we are reluctant to add dependencies outside Python's standard library.
