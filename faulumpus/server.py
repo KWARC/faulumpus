@@ -117,7 +117,13 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
         self.end_headers()
-        content = [f'<html>\n<body>\n<h1>FAULumpus</h1>\n<h2>Evaluated Agents (requires {GAMES_FOR_EVAL} games)</h2>\n']
+        content = [f'<html>\n<body>\n<h1>FAULumpus</h1>']
+        content.append('''<p>
+This is the FAULumpus test server for the <a href="https://kwarc.info/teaching/AI/">AI 2 lecture</a> at <a href="https://www.fau.de/">FAU</a>.
+The source code and further information can be found in the <a href="https://github.com/kwarc/faulumpus">Github repository</a>.
+</p>''')
+        content.append('<img src="https://nc.kwarc.info/s/GA3MdQTx7oY6FLn/download" alt="Example wumpus world">')
+        content.append(f'<h2>Evaluated Agents (requires {GAMES_FOR_EVAL} games)</h2>')
         content.append(f'<p>The evaluation score of an agent is the maximal average score of {GAMES_FOR_EVAL} consecutive games. Therefore, the evaluation will be updated when your agent becomes stronger and you do not have to get a new name for your agent.</p>')
         content.append('<ol>')
         for agent in sorted((n for n in AGENT_STATS if AGENT_STATS[n]['maxscore'] > -0.5), key=lambda n : -AGENT_STATS[n]['maxscore']):
