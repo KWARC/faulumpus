@@ -220,7 +220,7 @@ The source code and further information can be found in the <a href="https://git
 
 if __name__ == '__main__':
     import os
-    hostname = os.environ.get('HOST', 'localhost')
+    hostname = os.environ.get('HOST', '127.0.0.1')
     port = int(os.environ.get('PORT', '8000'))
 
     import sys
