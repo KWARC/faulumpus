@@ -105,6 +105,8 @@ class WorldGenerator(object):
             
             # place wumpus
             s = self.getLegalSquare(w, lambda s : s.issight or s.x + s.y < 5 or (s.pit and random() < 0.5))
+            if not s:
+                continue
             s.wumpus = True
             s.smell = True
             for n in s.neighbours.values():
