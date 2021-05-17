@@ -81,7 +81,7 @@ class TimidAgent(Agent):
 
 # TODO: Adjust these.
 # Please only use ASCII characters.
-# The password should be more than 10 characters long.
+# The password must be more than 10 characters long.
 # We don't store the password safely, so you should definitely not reuse a password from elsewhere!
 AGENT_NAME = 'MrTimid'
 AGENT_PASSWORD = ''
