@@ -21,6 +21,7 @@ def save_agentstats():
     with gzip.open(os.path.join('saved', f'{timestamp}-saved.dmp'), 'wb') as fp:
         pickle.dump(AGENT_STATS, fp)
     save_agentstats.lastsave = time.time()
+    save_agentstats.uptodate = True
     
     # remove unecessary files:
     files = [f for f in os.listdir('saved') if filenameregex.match(f)]
@@ -28,13 +29,15 @@ def save_agentstats():
     last = 0
     for f in files[:-1]:
         this = int(f[:12])
-        if this-last < 60*60:
+        if this-last < 60*60 or (time.time() - this > 48 * 60 * 60 and this-last < 12*60*60):
             os.remove(os.path.join('saved', f))
         else:
             last = this
 
-def maybe_save_agentstats():
-    if time.time() - save_agentstats.lastsave > 60*5:
+def maybe_save_agentstats(change = False):
+    if change:
+        save_agentstats.uptodate = False
+    if (not save_agentstats.uptodate) and time.time() - save_agentstats.lastsave > 60*2:
         save_agentstats()
 
 # try loading AGENT_STATS
@@ -49,6 +52,7 @@ if files:
     save_agentstats.lastsave = int(files[-1][:12])
 else:
     save_agentstats.lastsave = int(time.time())
+save_agentstats.uptodate = True
 
 
 name_regex = re.compile(r'^[a-zA-Z0-9 _!()\.-]+$')
@@ -115,6 +119,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         return d
 
     def do_GET(self):
+        maybe_save_agentstats(False)
         self.send_response(200)
         self.end_headers()
         content = [f'<html>\n<body>\n<h1>FAULumpus</h1>']
@@ -140,7 +145,9 @@ The source code and further information can be found in the <a href="https://git
                 score = 0.0 if not s['results'] else sum(s['results'])/len(s['results'])
                 hk = hashlib.sha256(s['key'].encode('UTF-8')).hexdigest()
                 content.append(f'<li>{agent}<!-- {hk} -->: {score:.4} (average from {len(s["results"])} games)</li>')
-        content.append('</ul>\n</body>\n</html>')
+        content.append('</ul>')
+        content.append(f'<p><small>Last backup: {time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(save_agentstats.lastsave))} UTC<br/>Changes since last backup: {"No " if save_agentstats.uptodate else "Yes"}</small></p>')
+        content.append('</body>\n</html>')
 
         self.wfile.write('\n'.join(content).encode('UTF-8'))
 
@@ -197,7 +204,7 @@ The source code and further information can be found in the <a href="https://git
         self.send_response(200)
         self.end_headers()
         self.wfile.write('\n'.join(messages).encode('UTF-8'))
-        maybe_save_agentstats()
+        maybe_save_agentstats(True)
 
     def do_POST(self):
         d = self.contentlines()
@@ -215,7 +222,7 @@ The source code and further information can be found in the <a href="https://git
         self.send_response(200)
         self.end_headers()
         self.wfile.write(message.encode('UTF-8'))
-        maybe_save_agentstats()
+        maybe_save_agentstats(True)
 
 
 
