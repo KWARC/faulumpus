@@ -124,7 +124,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
         content = [f'<html>\n<body>\n<h1>FAULumpus</h1>']
         if os.environ.get('IT_IS_OVER') == '1':
-            content.append("<h2 style='color: red'>The assignment is now over. You can still play games and add new scores, but they will not be counted. </h2>")
+            content.append("<h2 style='color: red'>The assignment is now over. You can still play games and add new scores, but they will not be counted. However, we may shut down the server in the future without any notice. </h2>")
         content.append('''<p>
 This is the FAULumpus test server for the <a href="https://kwarc.info/teaching/AI/">AI 2 lecture</a> at <a href="https://www.fau.de/">FAU</a>.
 The source code and further information can be found in the <a href="https://github.com/kwarc/faulumpus">Github repository</a>.
