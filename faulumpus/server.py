@@ -228,17 +228,31 @@ The source code and further information can be found in the <a href="https://git
 
 
 if __name__ == '__main__':
-    import os
-    hostname = os.environ.get('HOST', '127.0.0.1')
-    port = int(os.environ.get('PORT', '8000'))
+    import os, sys, signal
 
-    import sys
+    # when requested, start the visualizer
     if sys.argv[-1] == '-visualize':
         import visualizer
         VISUALIZER = visualizer.Visualizer(GENERATOR.width, GENERATOR.height)
         import threading
         threading.Thread(target=VISUALIZER.run).start()
+
+    # setup code to gracefully stop the server!
+    def stop_gracefully(sig, frame):
+        print("Received signal {}, saving and exiting gracefully. ".format(sig))
+        save_agentstats()
+        sys.exit(1)
+
+    signal.signal(signal.SIGINT, stop_gracefully)
+    signal.signal(signal.SIGTERM, stop_gracefully)
+
+    # Create the server
+    hostname = os.environ.get('HOST', '127.0.0.1')
+    port = int(os.environ.get('PORT', '8000'))
+
     httpd = HTTPServer((hostname, port), SimpleHTTPRequestHandler)
+    print("Listening on {}:{}".format(hostname, port))
+
     try:
         httpd.serve_forever()
     finally:
