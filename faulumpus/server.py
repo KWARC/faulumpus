@@ -241,7 +241,7 @@ if __name__ == '__main__':
     def stop_gracefully(sig, frame):
         print("Received signal {}, saving and exiting gracefully. ".format(sig))
         save_agentstats()
-        sys.exit(1)
+        sys.exit(0)
 
     signal.signal(signal.SIGINT, stop_gracefully)
     signal.signal(signal.SIGTERM, stop_gracefully)
